@@ -1,7 +1,18 @@
 const express = 'express';
+const helmet = require('helmet');
+const logger = require('morgan');
+
+// Routers
+const PostsRouter = require('./posts/postRouter.js');
+const UsersRouter = require('./users/userRouter.js');
 
 const server = express();
+// Middleware
+server.use(express.json());
+server.use(helmet());
+server.use(logger('dev'));
 
+// Base Folder
 server.get('/', (req, res) => {
   res.send(`<h2>Let's write some middleware!</h2>`)
 });
@@ -15,5 +26,12 @@ function logger(req, res, next) {
 
 
 };
+
+server.use((error, req, res, next) => {
+  res.status(400).json({ 
+    message: "Bad Panda!",
+    error
+  });
+});
 
 module.exports = server;

@@ -1,7 +1,7 @@
 const express = 'express';
-
 const router = express.Router();
 
+//#region - CREATE
 router.post('/', (req, res) => {
 
 });
@@ -9,7 +9,9 @@ router.post('/', (req, res) => {
 router.post('/:id/posts', (req, res) => {
 
 });
+//#endregion
 
+//#region - READ
 router.get('/', (req, res) => {
 
 });
@@ -21,16 +23,21 @@ router.get('/:id', (req, res) => {
 router.get('/:id/posts', (req, res) => {
 
 });
+//#endregion
 
-router.delete('/:id', (req, res) => {
-
-});
-
+//#region - UPDATE
 router.put('/:id', (req, res) => {
 
 });
+//#endregion
 
-//custom middleware
+//#region - DELETE
+router.delete('/:id', (req, res) => {
+
+});
+//#endregion
+
+//#region - Custom Middleware
 
 function validateUserId(req, res, next) {
   // TODO: validateUserId()
@@ -55,5 +62,6 @@ function validatePost(req, res, next) {
   // if the request body is missing, cancel the request and respond with status 400 and { message: "missing post data" }
   // if the request body is missing the required text field, cancel the request and respond with status 400 and { message: "missing required text field" }
 };
+//#endregion
 
 module.exports = router;
