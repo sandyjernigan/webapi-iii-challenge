@@ -37,9 +37,16 @@ function logger(req, res, next) {
 };
 
 server.use((error, req, res, next) => {
-  res.status(400).json({ 
-    message: "Silly Old Bear!",
-    error
+  // const errorMessage = "Silly Old Bear! " + error.message;
+  let errorMessage = "Silly Old Bear! ";
+
+  switch (error.code) {
+    case 400: errorMessage = errorMessage + "You made a Bad Request. " + error.message;
+      break;
+    default: errorMessage = errorMessage + "Oh my! " + error.message;
+  }
+  res.status(error.code).json({ 
+    message: errorMessage
   });
 });
 
