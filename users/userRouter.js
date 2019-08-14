@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 // Database
 const DB = require('./userDb.js');
+const PostDB = require('../posts/postDb.js');
 
 //#region - CREATE
 // Creates a user using the information sent inside the request body.
@@ -25,7 +26,27 @@ router.post('/', validateUser, async (req, res) => {
   }
 });
 
-router.post('/:id/posts', (req, res) => {
+// Creates a post for the user with the specified id.
+router.post('/:id/posts', [validateUserId, validatePost], async (req, res) => {
+  try {
+    const reqInfo = {...req.body, user_id: req.params.id}
+
+    // `insert()`: calling insert passing it a `resource` object will add it to the database and return the new `resource`.
+    const insertResults = await PostDB.insert(reqInfo);
+    const results = await PostDB.getById(insertResults.id);
+
+    // check that post was added
+    if (results) {
+      res.status(201).json(results); // return HTTP status code 201 (Created)
+    } else {
+      next({ code: 404, message: "There was an error while saving the post." });
+    }
+
+  } catch (error) {
+    // If there's an error while saving the post:
+    console.log(error);
+    next({ code: 500, message: "There was an error while saving the post to the database." });
+  }
 
 });
 //#endregion
@@ -118,6 +139,21 @@ function validateUser(req, res, next) {
     }
   } else {
       next({ code: 400, message: "Request is missing user data." });
+  }
+};
+
+function validatePost(req, res, next) {
+  const { body } = req
+
+  if (req.body && Object.keys(req.body).length > 0) {
+    if (!req.body.text) {
+      next({ code: 400, message: "Request is missing required text field." })
+    } else {
+      req.body = body;
+      next();
+    }
+  } else {
+      next({ code: 400, message: "Request is missing post data." });
   }
 };
 //#endregion
