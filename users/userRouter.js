@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+// Database
+const DB = require('./userDb.js');
 
 //#region - CREATE
 router.post('/', (req, res) => {
@@ -12,8 +14,16 @@ router.post('/:id/posts', (req, res) => {
 //#endregion
 
 //#region - READ
-router.get('/', (req, res) => {
-
+// Read All - Returns an array of all the users
+router.get('/', async (req, res) => {
+  try {
+    // `get()`: calling find returns a promise that resolves to an array of all the `resources` contained in the database.
+    const results = await DB.get();
+    res.status(200).json(results);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "The users information could not be retrieved." });
+  }
 });
 
 router.get('/:id', (req, res) => {
