@@ -26,8 +26,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id', (req, res) => {
-
+router.get('/:id', validateUserId, (req, res) => {
+  res.status(200).json(req.user);
 });
 
 router.get('/:id/posts', (req, res) => {
@@ -49,12 +49,28 @@ router.delete('/:id', (req, res) => {
 
 //#region - Custom Middleware
 
-function validateUserId(req, res, next) {
-  // TODO: validateUserId()
-  // validateUserId validates the user id on every request that expects a user id parameter
-  // if the id parameter is valid, store that user object as req.user
-  // if the id parameter does not match any user id in the database, cancel the request and respond with status 400 and { message: "invalid user id" }
+async function validateUserId(req, res, next) {
+  const { id } = req.params
+  try {
+    // `getById()`: takes an `id` as the argument and returns a promise that resolves to the `resource` with that id if found.
+    const results = await DB.getById(id);
 
+    // If the post with the specified id is not found:
+    if (!results || Object.keys(results).length === 0) {
+      res.status(400).json({
+        message: "Invalid User ID"
+      });
+    } else {
+      req.user = results;
+      next();
+    }
+  } catch (error) {
+    // If there's an error in retrieving the post from the database:
+    console.log(error);
+    res.status(500).json({ // respond with HTTP status code 500 (Server Error).
+      error: "The user information could not be retrieved."
+    });
+  }
 };
 
 function validateUser(req, res, next) {

@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
 });
 
 // Read by ID - Returns the post object with the specified id.
-router.get('/:id', validatePostId, async (req, res) => {
+router.get('/:id', validatePostId, (req, res) => {
   res.status(200).json(req.results);
 });
 //#endregion
@@ -49,7 +49,7 @@ async function validatePostId(req, res, next) {
     const results = await DB.getById(id);
 
     // If the post with the specified id is not found:
-    if (Object.keys(results).length === 0) {
+    if (!results || Object.keys(results).length === 0) {
       res.status(404).json({ // 404: Not Found
         message: "The post with the specified ID does not exist."
       });
