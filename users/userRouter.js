@@ -26,12 +26,32 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Read by ID - Returns the user object with the specified id.
 router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user);
 });
 
-router.get('/:id/posts', (req, res) => {
-
+// Read Posts - Returns an array of all the posts associated with the user with a specified id.
+router.get('/:id/posts', validateUserId, async (req, res) => {
+  try {
+    // `getUserPosts()` that when passed a user's `id`, returns a list of all the `posts` for the `user`.
+    if(req.user) { // user found, check for posts
+      const results = await DB.getUserPosts(req.params.id);
+      if (!results) {
+        res.status(404).json({ // 404: Not Found
+          message: "No posts found."
+        });
+      } else { // (else) return comments
+        res.status(200).json(results);
+      }
+    }
+  } catch (error) {
+    // If there's an error in retrieving the comments from the database
+    console.log(error);
+    res.status(500).json({ // respond with HTTP status code 500 (Server Error).
+      error: "Information could not be retrieved.",
+    });
+  }
 });
 //#endregion
 
