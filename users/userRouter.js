@@ -7,34 +7,21 @@ const DB = require('./userDb.js');
 // Creates a user using the information sent inside the request body.
 router.post('/', validateUser, async (req, res) => {
   try {
-    const { title, contents } = req.body
+    // `insert()`: calling insert passing it a `resource` object will add it to the database and return the new `resource`.
+    const insertResults = await DB.insert(req.body);
+    const results = await DB.getById(insertResults.id);
 
-    // If the request body is missing the title or contents property:
-    if (!title || !contents) {
-      res.status(400).json({ // respond with HTTP status code 400 (Bad Request)
-        errorMessage: "Please provide title and contents for the post.",
-      });
+    // check that post was added
+    if (results) {
+      res.status(201).json(results); // return HTTP status code 201 (Created)
     } else {
-      // calling insert passing it a post object will add it to the database and return an object with the id of the inserted post. The object looks like this: { id: 123 }.
-      const addPost = await DB.insert(req.body);
-      const results = await DB.findById(addPost.id);
-
-      // check that post was added
-      if (results) {
-        res.status(201).json(results); // return HTTP status code 201 (Created)
-      } else {
-        res.status(404).json({ // return HTTP status code 404 (Not Found).
-          errorMessage: "There was an error while saving the post.",
-        });
-      }
+      next({ code: 404, message: "There was an error while saving the user." });
     }
 
   } catch (error) {
     // If there's an error while saving the post:
     console.log(error);
-    res.status(500).json({ // respond with HTTP status code 500 (Server Error)
-      error: "There was an error while saving the post to the database",
-    });
+    next({ code: 500, message: "There was an error while saving the user to the database." });
   }
 });
 
@@ -124,6 +111,7 @@ function validateUser(req, res, next) {
 
   if (req.body && Object.keys(req.body).length > 0) {
     if (req.body.name) {
+      req.body = body;
       next();
     } else {
       next({ code: 400, message: "Request is missing required name field." });
@@ -131,13 +119,6 @@ function validateUser(req, res, next) {
   } else {
       next({ code: 400, message: "Request is missing user data." });
   }
-};
-
-function validatePost(req, res, next) {
-  // TODO: validatePost()
-  // validatePost validates the body on a request to create a new post
-  // if the request body is missing, cancel the request and respond with status 400 and { message: "missing post data" }
-  // if the request body is missing the required text field, cancel the request and respond with status 400 and { message: "missing required text field" }
 };
 //#endregion
 
