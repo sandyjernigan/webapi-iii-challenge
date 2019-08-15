@@ -94,7 +94,23 @@ router.get('/:id/posts', validateUserId, async (req, res) => {
 //#endregion
 
 //#region - UPDATE
-router.put('/:id', (req, res) => {
+router.put('/:id', [validateUserId, validateUser], (req, res) => {
+  try {
+    // `update()`: accepts two arguments, the first is the `id` of the `resource` to update 
+    // and the second is an object with the `changes` to apply. 
+    // It returns the count of updated records. If the count is 1 it means the record was updated correctly.
+    const updateResults = await DB.update(req.params.id, req.body);
+    if (updateResults) {
+      const results = await DB.findById(req.params.id);
+      res.status(200).json(results);
+    } else {
+      next({ code: 404, message: "The user could not be found." });
+    }
+  } catch (error) {
+    // If there's an error when updating the post:
+    console.log(error);
+    next({ code: 500, message: "The user information could not be modified." });
+  }
 
 });
 //#endregion
