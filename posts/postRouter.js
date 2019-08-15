@@ -44,8 +44,29 @@ router.get('/:id', validatePostId, (req, res) => {
 //#endregion
 
 //#region - UPDATE
-router.put('/:id', (req, res) => {
-
+// 	Updates the post with the specified id using data from the request body. Returns the modified document, NOT the original.
+router.put('/:id', validatePostId, async (req, res) => {
+  try {
+    // If the request body is missing the contents:
+    if (!req.body.text) {
+      next({ code: 400, message: "Request is missing required text field." })
+    } else {
+      // `update()`: accepts two arguments, the first is the `id` of the `resource` to update 
+      // and the second is an object with the `changes` to apply. 
+      // It returns the count of updated records. If the count is 1 it means the record was updated correctly.
+      const updateResults = await DB.update(req.params.id, req.body);
+      if (updateResults) {
+        const results = await DB.findById(req.params.id);
+        res.status(200).json(results); // return HTTP status code 200 (OK) and the newly updated post.
+      } else {
+        next({ code: 404, message: "The post could not be found." });
+      }
+    }
+  } catch (error) {
+    // If there's an error when updating the post:
+    console.log(error);
+    next({ code: 500, message: "The post information could not be modified." });
+  }
 });
 //#endregion
 
