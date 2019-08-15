@@ -94,7 +94,7 @@ router.get('/:id/posts', validateUserId, async (req, res) => {
 //#endregion
 
 //#region - UPDATE
-router.put('/:id', [validateUserId, validateUser], (req, res) => {
+router.put('/:id', [validateUserId, validateUser], async (req, res) => {
   try {
     // `update()`: accepts two arguments, the first is the `id` of the `resource` to update 
     // and the second is an object with the `changes` to apply. 
@@ -116,8 +116,21 @@ router.put('/:id', [validateUserId, validateUser], (req, res) => {
 //#endregion
 
 //#region - DELETE
-router.delete('/:id', (req, res) => {
-
+router.delete('/:id', validateUserId, async (req, res) => {
+  try {
+    const results = await DB.findById(req.params.id);
+    // `remove()`: the remove method accepts an `id` as it's first parameter and, upon successfully deleting the `resource` from the database, returns the number of records deleted.
+    const deleteResults = await DB.remove(req.params.id);
+    if (deleteResults > 0) {
+      res.status(200).json({ results, message: 'Delete user was successful.' });
+    } else {
+      next({ code: 404, message: "The user with the specified ID does not exist." });
+    }
+  } catch (error) {
+    // log error to database
+    console.log(error);
+    next({ code: 500, message: "The user could not be removed." });
+  }
 });
 //#endregion
 
