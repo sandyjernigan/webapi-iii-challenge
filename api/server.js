@@ -19,7 +19,7 @@ server.use(logger);
 
 // Base Folder
 server.get('/', (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`)
+  res.send(`<h2>Hello World!</h2><p><a href="./api/users">Users</a></p><p><a href="./api/posts">Posts</a></p>`)
 });
 
 
