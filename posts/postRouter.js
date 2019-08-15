@@ -71,8 +71,21 @@ router.put('/:id', validatePostId, async (req, res) => {
 //#endregion
 
 //#region - DELETE
-router.delete('/:id', (req, res) => {
-
+router.delete('/:id', validatePostId, async (req, res) => {
+  try {
+    const results = await DB.findById(req.params.id);
+    // `remove()`: the remove method accepts an `id` as it's first parameter and, upon successfully deleting the `resource` from the database, returns the number of records deleted.
+    const deleteResults = await DB.remove(req.params.id);
+    if (deleteResults > 0) {
+      res.status(200).json({ results, message: 'Delete post was successful.' });
+    } else {
+      next({ code: 404, message: "The post with the specified ID does not exist." });
+    }
+  } catch (error) {
+    // log error to database
+    console.log(error);
+    next({ code: 500, message: "The post could not be removed." });
+  }
 });
 //#endregion
 
