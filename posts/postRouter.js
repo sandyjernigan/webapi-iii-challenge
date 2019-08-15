@@ -56,7 +56,7 @@ router.put('/:id', validatePostId, async (req, res) => {
       // It returns the count of updated records. If the count is 1 it means the record was updated correctly.
       const updateResults = await DB.update(req.params.id, req.body);
       if (updateResults) {
-        const results = await DB.findById(req.params.id);
+        const results = await DB.getById(req.params.id);
         res.status(200).json(results); // return HTTP status code 200 (OK) and the newly updated post.
       } else {
         next({ code: 404, message: "The post could not be found." });
@@ -73,7 +73,7 @@ router.put('/:id', validatePostId, async (req, res) => {
 //#region - DELETE
 router.delete('/:id', validatePostId, async (req, res) => {
   try {
-    const results = await DB.findById(req.params.id);
+    const results = await DB.getById(req.params.id);
     // `remove()`: the remove method accepts an `id` as it's first parameter and, upon successfully deleting the `resource` from the database, returns the number of records deleted.
     const deleteResults = await DB.remove(req.params.id);
     if (deleteResults > 0) {
