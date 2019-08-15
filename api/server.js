@@ -7,8 +7,8 @@ const server = express();
 server.use(express.json());
 
 // Routers
-const PostsRouter = require('./posts/postRouter.js');
-const UsersRouter = require('./users/userRouter.js');
+const PostsRouter = require('../posts/postRouter.js');
+const UsersRouter = require('../users/userRouter.js');
 server.use('/api/posts', PostsRouter);
 server.use('/api/users', UsersRouter);
 
@@ -42,6 +42,8 @@ server.use((error, req, res, next) => {
 
   switch (error.code) {
     case 400: errorMessage = errorMessage + "You made a Bad Request. " + error.message;
+      break;
+    case 404: errorMessage = errorMessage + "You made a Bad Request. " + error.message;
       break;
     default: errorMessage = errorMessage + "Oh my! " + error.message;
   }
