@@ -5,7 +5,7 @@ const DB = require('./postDb.js');
 
 //#region - CREATE
 // Creates a post using the information sent inside the request body. 
-router.post('/', validatePost, async (req, res) => {
+router.post('/', validatePost, async (req, res, next) => {
   try {
     // `insert()`: calling insert passing it a `resource` object will add it to the database and return the new `resource`.
     const insertResults = await DB.insert(req.body);
@@ -26,7 +26,7 @@ router.post('/', validatePost, async (req, res) => {
 
 //#region - READ
 // Read All - Returns an array of all the posts
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     // `get()`: calling find returns a promise that resolves to an array of all the `resources` contained in the database.
     const results = await DB.get();
@@ -38,14 +38,14 @@ router.get('/', async (req, res) => {
 });
 
 // Read by ID - Returns the post object with the specified id.
-router.get('/:id', validatePostId, (req, res) => {
+router.get('/:id', validatePostId, (req, res, next) => {
   res.status(200).json(req.results);
 });
 //#endregion
 
 //#region - UPDATE
 // 	Updates the post with the specified id using data from the request body. Returns the modified document, NOT the original.
-router.put('/:id', validatePostId, async (req, res) => {
+router.put('/:id', validatePostId, async (req, res, next) => {
   try {
     // If the request body is missing the contents:
     if (!req.body.text) {
@@ -71,7 +71,7 @@ router.put('/:id', validatePostId, async (req, res) => {
 //#endregion
 
 //#region - DELETE
-router.delete('/:id', validatePostId, async (req, res) => {
+router.delete('/:id', validatePostId, async (req, res, next) => {
   try {
     const results = await DB.getById(req.params.id);
     // `remove()`: the remove method accepts an `id` as it's first parameter and, upon successfully deleting the `resource` from the database, returns the number of records deleted.

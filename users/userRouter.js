@@ -6,15 +6,14 @@ const PostDB = require('../posts/postDb.js');
 
 //#region - CREATE
 // Creates a user using the information sent inside the request body.
-router.post('/', validateUser, async (req, res) => {
+router.post('/', validateUser, async (req, res, next) => {
   try {
     // `insert()`: calling insert passing it a `resource` object will add it to the database and return the new `resource`.
     const insertResults = await DB.insert(req.body);
-    const results = await DB.getById(insertResults.id);
 
     // check that post was added
-    if (results) {
-      res.status(201).json(results); // return HTTP status code 201 (Created)
+    if (insertResults) {
+      res.status(201).json(insertResults); // return HTTP status code 201 (Created)
     } else {
       next({ code: 404, message: "There was an error while saving the user." });
     }
@@ -27,7 +26,7 @@ router.post('/', validateUser, async (req, res) => {
 });
 
 // Creates a post for the user with the specified id.
-router.post('/:id/posts', [validateUserId, validatePost], async (req, res) => {
+router.post('/:id/posts', [validateUserId, validatePost], async (req, res, next) => {
   try {
     const reqInfo = {...req.body, user_id: req.params.id}
 
@@ -53,7 +52,7 @@ router.post('/:id/posts', [validateUserId, validatePost], async (req, res) => {
 
 //#region - READ
 // Read All - Returns an array of all the users
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     // `get()`: calling find returns a promise that resolves to an array of all the `resources` contained in the database.
     const results = await DB.get();
@@ -65,12 +64,12 @@ router.get('/', async (req, res) => {
 });
 
 // Read by ID - Returns the user object with the specified id.
-router.get('/:id', validateUserId, (req, res) => {
+router.get('/:id', validateUserId, (req, res, next) => {
   res.status(200).json(req.user);
 });
 
 // Read Posts - Returns an array of all the posts associated with the user with a specified id.
-router.get('/:id/posts', validateUserId, async (req, res) => {
+router.get('/:id/posts', validateUserId, async (req, res, next) => {
   try {
     // `getUserPosts()` that when passed a user's `id`, returns a list of all the `posts` for the `user`.
     if(req.user) { // user found, check for posts
@@ -94,7 +93,7 @@ router.get('/:id/posts', validateUserId, async (req, res) => {
 //#endregion
 
 //#region - UPDATE
-router.put('/:id', [validateUserId, validateUser], async (req, res) => {
+router.put('/:id', [validateUserId, validateUser], async (req, res, next) => {
   try {
     // `update()`: accepts two arguments, the first is the `id` of the `resource` to update 
     // and the second is an object with the `changes` to apply. 
@@ -116,7 +115,7 @@ router.put('/:id', [validateUserId, validateUser], async (req, res) => {
 //#endregion
 
 //#region - DELETE
-router.delete('/:id', validateUserId, async (req, res) => {
+router.delete('/:id', validateUserId, async (req, res, next) => {
   try {
     const results = await DB.getById(req.params.id);
     // `remove()`: the remove method accepts an `id` as it's first parameter and, upon successfully deleting the `resource` from the database, returns the number of records deleted.
